@@ -1,24 +1,25 @@
 'use strict'
 
-const download = require('../src/download')
-const unzip = require('../src/unzip')
-const fs = require('fs-extra')
 const config = require('./config.json')
+const { createDownloadOpts, downloadElectronZip } = require('../src/download')
+const fs = require('fs-extra')
 const path = require('path')
-const os = require('os')
+const tempy = require('tempy')
 const test = require('ava')
+const unzip = require('../src/unzip')
 
-for (const downloadOpts of download.createDownloadCombos({ electronVersion: config.version }, ['darwin', 'mas'], ['x64'])) {
-  test.serial(`unzip preserves symbolic links (${downloadOpts.platform})`, t => { return unzipPreserveSymbolicLinks(t, downloadOpts) })
-}
+test('unzip preserves symbolic links for darwin targets', async t => {
+  const downloadOpts = createDownloadOpts({ electronVersion: config.version }, 'darwin', 'x64')
+  const zipPath = await downloadElectronZip(downloadOpts)
+  const tempPath = tempy.directory()
 
-async function unzipPreserveSymbolicLinks (t, downloadOpts) {
-  const zipPath = await download.downloadElectronZip(downloadOpts)
-  const tempPath = await fs.mkdtemp(path.join(os.tmpdir(), 'symlinktest-'))
+  try {
+    await unzip(downloadOpts.platform, zipPath, tempPath)
 
-  await unzip(zipPath, tempPath)
-
-  const testSymlinkPath = path.join(tempPath, 'Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries')
-  const stat = await fs.lstat(testSymlinkPath)
-  t.true(stat.isSymbolicLink(), 'extract symoblic links')
-}
+    const testSymlinkPath = path.join(tempPath, 'Electron.app/Contents/Frameworks/Electron Framework.framework/Libraries')
+    const stat = await fs.lstat(testSymlinkPath)
+    t.true(stat.isSymbolicLink(), `Expected "${testSymlinkPath}" to be a symbolic link`)
+  } finally {
+    await fs.remove(tempPath)
+  }
+})

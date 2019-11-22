@@ -69,7 +69,7 @@ class Packager {
 
   async extractElectronZip (comboOpts, zipPath, buildDir) {
     debug(`Extracting ${zipPath} to ${buildDir}`)
-    await unzip(zipPath, buildDir)
+    await unzip(comboOpts.platform, zipPath, buildDir)
     await hooks.promisifyHooks(this.opts.afterExtract, [buildDir, comboOpts.electronVersion, comboOpts.platform, comboOpts.arch])
   }
 

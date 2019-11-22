@@ -27,6 +27,7 @@
   "dependencies": {
     "@electron/get": "^1.6.0",
     "asar": "^2.0.1",
+    "cross-spawn": "^7.0.1",
     "cross-zip": "^2.1.5",
     "debug": "^4.0.1",
     "electron-notarize": "^0.2.0",
@@ -41,6 +42,7 @@
     "resolve": "^1.1.6",
     "sanitize-filename": "^1.6.0",
     "semver": "^6.0.0",
+    "which": "^2.0.2",
     "yargs-parser": "^16.0.0"
   },
   "devDependencies": {
