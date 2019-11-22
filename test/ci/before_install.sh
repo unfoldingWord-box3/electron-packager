@@ -10,4 +10,7 @@ case "$(uname -s)" in
   "Darwin")
     "$(dirname $0)"/codesign/import-testing-cert-ci.sh
     ;;
+  Windows*|CYGWIN*|MINGW*|MSYS*)
+    choco install 7zip
+    ;;
 esac
