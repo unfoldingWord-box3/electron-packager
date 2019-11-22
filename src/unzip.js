@@ -30,7 +30,7 @@ async function unzipUsing7zip (sevenZip, zipPath, targetDir) {
     process.stderr.on('data', data => {
       stderr += data
     })
-    process.on('code', code => {
+    process.on('close', code => {
       if (stdout) {
         debug(`STDOUT: ${stdout}`)
       }
@@ -38,7 +38,7 @@ async function unzipUsing7zip (sevenZip, zipPath, targetDir) {
         debug(`STDERR: ${stderr}`)
       }
       // According to the man page, exit code 1 is a warning
-      if (code > 1) {
+      if (Number(code) <= 1) {
         resolve()
       } else {
         reject(new Error(`"${sevenZip}" exited with code ${code}. Set the environment variable DEBUG=electron-packager to see 7z stdout/stderr for troubleshooting purposes.`))
