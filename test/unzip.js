@@ -8,11 +8,8 @@ const test = require('ava')
 const unzip = require('../src/unzip')
 
 test.serial('unzip preserves symbolic links', async t => {
-  const zipPath = await download.downloadElectronZip({
-    electronVersion: config.version,
-    platform: 'darwin',
-    arch: 'x64'
-  })
+  const downloadOpts = download.createDownloadOpts({ electronVersion: config.version }, 'darwin', 'x64')
+  const zipPath = await download.downloadElectronZip(downloadOpts)
 
   await unzip(zipPath, t.context.tempDir)
 
