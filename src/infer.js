@@ -1,6 +1,6 @@
 'use strict'
 
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const getPackageInfo = require('get-package-info')
 const parseAuthor = require('parse-author')
 const path = require('path')
@@ -8,7 +8,7 @@ const resolve = require('resolve')
 const semver = require('semver')
 
 function isMissingRequiredProperty (props) {
-  return props.some(prop => prop === 'productName' || prop === 'dependencies.electron')
+  return props.some(prop => prop === 'productName' || prop === 'dependencies.electronite')
 }
 
 function errorMessageForProperty (prop) {
@@ -18,7 +18,7 @@ function errorMessageForProperty (prop) {
       hash = 'name'
       propDescription = 'application name'
       break
-    case 'dependencies.electron':
+    case 'dependencies.electronite':
       hash = 'electronversion'
       propDescription = 'Electron version'
       break
@@ -110,8 +110,8 @@ async function handleMetadata (opts, result) {
   }
 
   // eslint-disable-next-line no-prototype-builtins
-  if (result.values.hasOwnProperty('dependencies.electron')) {
-    return getVersion(opts, result.source['dependencies.electron'])
+  if (result.values.hasOwnProperty('dependencies.electronite')) {
+    return getVersion(opts, result.source['dependencies.electronite'])
   } else {
     return Promise.resolve()
   }
@@ -140,14 +140,14 @@ module.exports = async function getMetadataFromPackageJSON (platforms, opts, dir
   if (!opts.appVersion) props.push('version')
   if (!opts.electronVersion) {
     props.push([
-      'dependencies.electron',
-      'devDependencies.electron',
-      'dependencies.electron-nightly',
-      'devDependencies.electron-nightly',
-      'dependencies.electron-prebuilt-compile',
-      'devDependencies.electron-prebuilt-compile',
-      'dependencies.electron-prebuilt',
-      'devDependencies.electron-prebuilt'
+      'dependencies.electronite',
+      'devDependencies.electronite',
+      'dependencies.electronite-nightly',
+      'devDependencies.electronite-nightly',
+      'dependencies.electronite-prebuilt-compile',
+      'devDependencies.electronite-prebuilt-compile',
+      'dependencies.electronite-prebuilt',
+      'devDependencies.electronite-prebuilt'
     ])
   }
 

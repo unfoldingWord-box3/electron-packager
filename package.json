@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "bin": {
-    "electron-packager": "bin/electron-packager.js"
+    "electronite-packager": "bin/electron-packager.js"
   },
   "repository": {
     "type": "git",

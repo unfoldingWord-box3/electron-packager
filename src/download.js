@@ -32,6 +32,15 @@ module.exports = {
       downloadOpts.arch = 'arm'
     }
     debug(`Downloading Electron with options ${JSON.stringify(downloadOpts)}`)
-    return downloadArtifact(downloadOpts)
+    return downloadArtifact({
+      // use electronite mirror by default
+      unsafelyDisableChecksums: true,
+      mirrorOptions: {
+        mirror: 'https://github.com/unfoldingWord-dev/electronite/releases/download/',
+        customDir: 'v' + downloadOpts.version + '-graphite',
+        customFilename: 'electronite-v' + downloadOpts.version + '-' + downloadOpts.platform + '-' + downloadOpts.arch + '.zip'
+      },
+      ...downloadOpts
+    })
   }
 }
