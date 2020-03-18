@@ -74,7 +74,7 @@ module.exports = {
   subOptionWarning: subOptionWarning,
 
   baseTempDir: function baseTempDir (opts) {
-    return path.join(opts.tmpdir || os.tmpdir(), 'electron-packager')
+    return path.join(opts.tmpdir || os.tmpdir(), 'electronite-packager')
   },
   generateFinalBasename: generateFinalBasename,
   generateFinalPath: generateFinalPath,

@@ -1,7 +1,7 @@
 'use strict'
 
 const common = require('./common')
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const junk = require('junk')
 const path = require('path')
 const prune = require('./prune')
