@@ -1,6 +1,6 @@
 'use strict'
 
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const path = require('path')
 const { WrapperError } = require('cross-spawn-windows-exe')
 

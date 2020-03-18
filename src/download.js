@@ -1,7 +1,7 @@
 'use strict'
 
 const common = require('./common')
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const { downloadArtifact } = require('@electron/get')
 const semver = require('semver')
 const targets = require('./targets')

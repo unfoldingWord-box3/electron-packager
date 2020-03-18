@@ -2,7 +2,7 @@
 
 const asar = require('@electron/asar')
 const crypto = require('crypto')
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const fs = require('fs-extra')
 const path = require('path')
 

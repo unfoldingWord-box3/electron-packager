@@ -2,7 +2,7 @@
 
 const common = require('./common')
 const copyFilter = require('./copy-filter')
-const debug = require('debug')('electron-packager')
+const debug = require('debug')('electronite-packager')
 const download = require('./download')
 const fs = require('fs-extra')
 const getMetadataFromPackageJSON = require('./infer')
