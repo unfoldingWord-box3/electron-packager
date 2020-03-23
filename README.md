@@ -1,6 +1,6 @@
-# Electron Packager
+# Electronite Packager
 
-Package your [Electron](https://electronjs.org) app into OS-specific bundles (`.app`, `.exe`, etc.) via JavaScript or the command line.
+Package your [Electronite](https://github.com/unfoldingword-dev/electronite) app into OS-specific bundles (`.app`, `.exe`, etc.) via JavaScript or the command line.
 
 [![CircleCI Build Status](https://circleci.com/gh/electron/electron-packager/tree/main.svg?style=svg)](https://circleci.com/gh/electron/electron-packager/tree/main)
 [![electron-nightly Canary](https://github.com/electron/electron-packager/actions/workflows/canary.yml/badge.svg)](https://github.com/electron/electron-packager/actions/workflows/canary.yml)
