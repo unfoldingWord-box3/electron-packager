@@ -1,8 +1,8 @@
 'use strict'
 
 const common = require('./common')
-const debug = require('debug')('electronite-packager')
 const copyFilter = require('./copy-filter')
+const debug = require('debug')('electronite-packager')
 const download = require('./download')
 const fs = require('fs-extra')
 const getMetadataFromPackageJSON = require('./infer')

@@ -1,8 +1,8 @@
 'use strict'
 
 const asar = require('asar')
-const debug = require('debug')('electronite-packager')
 const crypto = require('crypto')
+const debug = require('debug')('electronite-packager')
 const fs = require('fs-extra')
 const path = require('path')
 
