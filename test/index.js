@@ -5,11 +5,12 @@ require('./_util')
 require('./basic')
 require('./asar')
 require('./cli')
-require('./ignore')
+require('./copy-filter')
 require('./infer')
 require('./hooks')
 require('./prune')
 require('./targets')
+require('./unzip')
 require('./win32')
 
 if (process.platform !== 'win32') {

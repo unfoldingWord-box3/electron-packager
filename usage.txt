@@ -54,7 +54,7 @@ extra-resource     a file to copy into the app's resources directory
 icon               the local path to an icon file to use as the icon for the app.
                    Note: Format depends on platform.
 ignore             do not copy files into app whose filenames RegExp.match this string. See also:
-                   https://electron.github.io/electron-packager/master/interfaces/electronpackager.options.html#ignore
+                   https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html#ignore
                    and --no-prune. Can be specified multiple times
 no-deref-symlinks  make sure symlinks are not dereferenced within the app source
 no-junk            do not ignore system junk files from the packaged app
@@ -95,6 +95,8 @@ osx-notarize       (macOS host platform only, requires --osx-sign) Whether to no
                    Properties supported include:
                    - appleId: should contain your apple ID username / email
                    - appleIdPassword: should contain the password for the provided apple ID
+                   - appleApiKey: should contain an App Store Connect API key
+                   - appleApiIssuer: should contain the API key's issuer
 protocol           URL protocol scheme to register the app as an opener of.
                    For example, `--protocol=myapp` would register the app to open
                    URLs such as `myapp://path`. This argument requires a `--protocol-name`

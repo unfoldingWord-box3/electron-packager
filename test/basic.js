@@ -47,7 +47,7 @@ test('download argument: download.{arch,platform,version,artifactName} does not 
 })
 
 test('sanitize app name for use in file/directory names', t => {
-  t.is('@username-package', common.sanitizeAppName('@username/package'), 'slash should be replaced')
+  t.is(common.sanitizeAppName('@username/package'), '@username-package', 'slash should be replaced')
 })
 
 test('sanitize app name for use in the out directory name', t => {
@@ -56,7 +56,7 @@ test('sanitize app name for use in the out directory name', t => {
     name: '@username/package-name',
     platform: 'linux'
   }
-  t.is('@username-package-name-linux-x64', common.generateFinalBasename(opts), 'generateFinalBasename output should be sanitized')
+  t.is(common.generateFinalBasename(opts), '@username-package-name-linux-x64', 'generateFinalBasename output should be sanitized')
 })
 
 test('cannot build apps where the name ends in " Helper"', async t => {
@@ -84,7 +84,7 @@ test('deprecatedParameter moves value in deprecated param to new param if new pa
 
   t.false(Object.prototype.hasOwnProperty.call(opts, 'not_overwritten_old'), 'not_overwritten_old property is not set')
   t.true(Object.prototype.hasOwnProperty.call(opts, 'new'), 'new property is set')
-  t.is('value', opts.new, 'new property is not overwritten')
+  t.is(opts.new, 'value', 'new property is not overwritten')
 })
 
 test.serial('defaults', util.testSinglePlatform(async (t, opts) => {
@@ -243,7 +243,7 @@ test.serial('building for Linux target sanitizes binary name', util.testSinglePl
   opts.dir = util.fixtureSubdir('basic')
 
   const paths = await packager(opts)
-  t.is(1, paths.length, '1 bundle created')
+  t.is(paths.length, 1, '1 bundle created')
   await util.assertFile(t, path.join(paths[0], '@username-package-name'), 'The sanitized binary filename should exist')
 }))
 
@@ -253,7 +253,7 @@ test.serial('executableName honored when building for Linux target', util.testSi
   opts.dir = util.fixtureSubdir('basic')
 
   const paths = await packager(opts)
-  t.is(1, paths.length, '1 bundle created')
+  t.is(paths.length, 1, '1 bundle created')
   await util.assertFile(t, path.join(paths[0], 'my-package'), 'The executableName-based filename should exist')
 }))
 
@@ -284,7 +284,7 @@ test.serial('electronZipDir success', util.testSinglePlatform(async (t, opts) =>
   await fs.copy(zipPath, path.join(customDir, path.basename(zipPath)))
 
   const paths = await packager(opts)
-  t.is(1, paths.length, '1 bundle created')
+  t.is(paths.length, 1, '1 bundle created')
 }))
 
 test.serial('electronZipDir does not exist', util.testSinglePlatform(async (t, opts) => {
@@ -303,3 +303,29 @@ test.serial('electronZipDir: ZIP file does not exist', util.testSinglePlatform(a
 
   await t.throwsAsync(async () => packager(opts), { message: /Electron ZIP file does not exist/ })
 }))
+
+test('validateElectronApp succeeds on a well-formed Electron app containing a main field', async t => {
+  await t.notThrowsAsync(async () => await common.validateElectronApp('original-dir', util.fixtureSubdir('validate-success-with-main')))
+})
+
+test('validateElectronApp succeeds on a well-formed Electron app without a main field', async t => {
+  await t.notThrowsAsync(async () => await common.validateElectronApp('original-dir', util.fixtureSubdir('validate-success-without-main')))
+})
+
+test('validateElectronApp fails on an Electron app without package.json', async t => {
+  await t.throwsAsync(async () => await common.validateElectronApp('original-dir', util.fixtureSubdir('validate-failure-without-package-json')), {
+    message: `Application manifest was not found. Make sure "${path.join('original-dir', 'package.json')}" exists and does not get ignored by your ignore option`
+  })
+})
+
+test('validateElectronApp fails on an Electron app with a package.json with a main field missing main entry point', async t => {
+  await t.throwsAsync(async () => await common.validateElectronApp('original-dir', util.fixtureSubdir('validate-failure-without-main-or-index')), {
+    message: `The main entry point to your app was not found. Make sure "${path.join('original-dir', 'index.js')}" exists and does not get ignored by your ignore option`
+  })
+})
+
+test('validateElectronApp fails on an Electron app with a package.json without a main field missing main entry point', async t => {
+  await t.throwsAsync(async () => await common.validateElectronApp('original-dir', util.fixtureSubdir('validate-failure-with-main-without-entry-point')), {
+    message: `The main entry point to your app was not found. Make sure "${path.join('original-dir', 'main.js')}" exists and does not get ignored by your ignore option`
+  })
+})

@@ -10,8 +10,14 @@
 
 import { CreateOptions as AsarOptions } from 'asar';
 import { ElectronDownloadRequestOptions as ElectronDownloadOptions } from '@electron/get';
-import { NotarizeOptions } from 'electron-notarize';
+import {
+  LegacyNotarizeCredentials,
+  NotaryToolCredentials,
+  TransporterOptions
+} from 'electron-notarize/lib/types';
 import { SignOptions } from 'electron-osx-sign';
+
+type NotarizeLegacyOptions = LegacyNotarizeCredentials & TransporterOptions;
 
 /**
  * Bundles Electron-based application source code with a renamed/customized Electron executable and
@@ -89,6 +95,9 @@ declare namespace electronPackager {
    *   // ...
    * })
    * ```
+   *
+   * For real-world examples of `HookFunction`s, see the [list of related
+   * plugins](https://github.com/electron/electron-packager#plugins).
    */
   type HookFunction =
     /**
@@ -115,7 +124,9 @@ declare namespace electronPackager {
    * See the documentation for [`electron-notarize`](https://npm.im/electron-notarize#method-notarizeopts-promisevoid)
    * for details.
    */
-  type OsxNotarizeOptions = Omit<NotarizeOptions, 'appBundleId' | 'appPath'>;
+  type OsxNotarizeOptions =
+    | ({ tool?: 'legacy' } & NotarizeLegacyOptions)
+    | ({ tool: 'notarytool' } & NotaryToolCredentials);
 
   /**
    * Defines URL protocol schemes to be used on macOS.
@@ -229,15 +240,15 @@ declare namespace electronPackager {
      * - `ia32`
      * - `x64`
      * - `armv7l`
-     * - `arm64` _(Electron 1.8.0 and above)_
+     * - `arm64` _(Linux: Electron 1.8.0 and above; Windows: 6.0.8 and above; macOS: 11.0.0-beta.1 and above)_
      * - `mips64el` _(Electron 1.8.2-beta.5 to 1.8.8)_
      */
     arch?: ArchOption | ArchOption[];
     /**
      * Whether to package the application's source code into an archive, using [Electron's
      * archive format](https://github.com/electron/asar). Reasons why you may want to enable
-     * this feature are described in [an application packaging tutorial in Electron's
-     * documentation](https://electronjs.org/docs/tutorial/application-packaging/). When the value
+     * this feature include mitigating issues around long path names on Windows, slightly speeding
+     * up `require`, and concealing your source code from cursory inspection. When the value
      * is `true`, it passes the default configuration to the `asar` module. The configuration
      * values can be customized when the value is an `Object`. Supported sub-options include, but
      * are not limited to:
@@ -331,8 +342,23 @@ declare namespace electronPackager {
      */
     extendInfo?: string | { [property: string]: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
     /**
+     * When the value is a string, specifies the filename of a `plist` file. Its contents are merged
+     * into all the Helper apps' `Info.plist` files.
+     * When the value is an `Object`, it specifies an already-parsed `plist` data structure that is
+     * merged into all the Helper apps' `Info.plist` files.
+     *
+     * Entries from `extendHelperInfo` override entries in the helper apps' `Info.plist` file supplied by
+     * `electron`, `electron-prebuilt-compile`, or `electron-prebuilt`, but are overridden by other
+     * options such as [[appVersion]] or [[appBundleId]].
+     *
+     * @category macOS
+     */
+    extendHelperInfo?: string | { [property: string]: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
+    /**
      * One or more files to be copied directly into the app's `Contents/Resources` directory for
-     * macOS target platforms, and the `resources` directory for other target platforms.
+     * macOS target platforms, and the `resources` directory for other target platforms. The
+     * resources directory can be referenced in the packaged app via the
+     * [`process.resourcesPath`](https://www.electronjs.org/docs/api/process#processresourcespath-readonly) value.
      */
     extraResource?: string | string[];
     /**
@@ -397,9 +423,9 @@ declare namespace electronPackager {
      */
     name?: string;
     /**
-     * If present, notarizes macOS target apps when the host platform is macOS and XCode is
-     * installed. See [`electron-notarize`](https://github.com/electron/electron-notarize#method-notarizeopts-promisevoid)
-     * for sub-option descriptions and how to use the `appleIdPassword` sub-option safely.
+     * If present, notarizes macOS target apps when the host platform is macOS and XCode is installed.
+     * See [`electron-notarize`](https://github.com/electron/electron-notarize#method-notarizeopts-promisevoid)
+     * for option descriptions, such as how to use `appleIdPassword` safely or obtain an API key.
      *
      * **Requires the [[osxSign]] option to be set.**
      *
