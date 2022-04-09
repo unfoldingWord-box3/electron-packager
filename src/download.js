@@ -37,7 +37,7 @@ module.exports = {
       unsafelyDisableChecksums: true,
       mirrorOptions: {
         mirror: 'https://github.com/unfoldingWord-dev/electronite/releases/download/',
-        customDir: 'v' + downloadOpts.version + '-graphite',
+        customDir: 'v' + downloadOpts.version,
         customFilename: 'electronite-v' + downloadOpts.version + '-' + downloadOpts.platform + '-' + downloadOpts.arch + '.zip'
       },
       ...downloadOpts
