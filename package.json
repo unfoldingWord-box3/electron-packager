@@ -1,6 +1,6 @@
 {
   "name": "electronite-packager",
-  "version": "15.4.0",
+  "version": "15.4.0-graphite-beta",
   "description": "Customize and package your Electronite app with OS-specific bundles (.app, .exe, etc.) via JS or CLI",
   "main": "src/index.js",
   "types": "src/index.d.ts",
