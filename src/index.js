@@ -10,6 +10,7 @@ const hooks = require('./hooks')
 const path = require('path')
 const targets = require('./targets')
 const unzip = require('./unzip')
+const { packageUniversalMac } = require('./universal')
 
 function debugHostInfo () {
   debug(common.hostInfo())
@@ -32,7 +33,8 @@ class Packager {
   }
 
   async testSymlink (comboOpts, zipPath) {
-    const testPath = path.join(this.tempBase, `symlink-test-${comboOpts.platform}-${comboOpts.arch}`)
+    await fs.mkdirp(this.tempBase)
+    const testPath = await fs.mkdtemp(path.join(this.tempBase, `symlink-test-${comboOpts.platform}-${comboOpts.arch}-`))
     const testFile = path.join(testPath, 'test')
     const testLink = path.join(testPath, 'testlink')
 
@@ -73,14 +75,19 @@ class Packager {
     await hooks.promisifyHooks(this.opts.afterExtract, [buildDir, comboOpts.electronVersion, comboOpts.platform, comboOpts.arch])
   }
 
-  async createApp (comboOpts, zipPath) {
+  async buildDir (platform, arch) {
     let buildParentDir
     if (this.useTempDir) {
       buildParentDir = this.tempBase
     } else {
       buildParentDir = this.opts.out || process.cwd()
     }
-    const buildDir = path.resolve(buildParentDir, `${comboOpts.platform}-${comboOpts.arch}-template`)
+    await fs.mkdirp(buildParentDir)
+    return await fs.mkdtemp(path.resolve(buildParentDir, `${platform}-${arch}-template-`))
+  }
+
+  async createApp (comboOpts, zipPath) {
+    const buildDir = await this.buildDir(comboOpts.platform, comboOpts.arch)
     common.info(`Packaging app for platform ${comboOpts.platform} ${comboOpts.arch} using electron v${comboOpts.electronVersion}`, this.opts.quiet)
 
     debug(`Creating ${buildDir}`)
@@ -125,15 +132,8 @@ class Packager {
     }
   }
 
-  async packageForPlatformAndArch (downloadOpts) {
+  async packageForPlatformAndArchWithOpts (comboOpts, downloadOpts) {
     const zipPath = await this.getElectronZipPath(downloadOpts)
-    // Create delegated options object with specific platform and arch, for output directory naming
-    const comboOpts = {
-      ...this.opts,
-      arch: downloadOpts.arch,
-      platform: downloadOpts.platform,
-      electronVersion: downloadOpts.version
-    }
 
     if (!this.useTempDir) {
       return this.createApp(comboOpts, zipPath)
@@ -149,6 +149,22 @@ class Packager {
     }
 
     return this.checkOverwrite(comboOpts, zipPath)
+  }
+
+  async packageForPlatformAndArch (downloadOpts) {
+    // Create delegated options object with specific platform and arch, for output directory naming
+    const comboOpts = {
+      ...this.opts,
+      arch: downloadOpts.arch,
+      platform: downloadOpts.platform,
+      electronVersion: downloadOpts.version
+    }
+
+    if (common.isPlatformMac(comboOpts.platform) && comboOpts.arch === 'universal') {
+      return packageUniversalMac(this.packageForPlatformAndArchWithOpts.bind(this), await this.buildDir(comboOpts.platform, comboOpts.arch), comboOpts, downloadOpts, this.tempBase)
+    }
+
+    return this.packageForPlatformAndArchWithOpts(comboOpts, downloadOpts)
   }
 }
 
@@ -184,6 +200,7 @@ module.exports = async function packager (opts) {
 
   copyFilter.populateIgnoredPaths(opts)
 
+  await hooks.promisifyHooks(opts.afterFinalizePackageTargets, [targets.createPlatformArchPairs(opts, platforms, archs).map(([platform, arch]) => ({ platform, arch }))])
   const appPaths = await packageAllSpecifiedCombos(opts, archs, platforms)
   // Remove falsy entries (e.g. skipped platforms)
   return appPaths.filter(appPath => appPath)

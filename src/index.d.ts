@@ -8,14 +8,17 @@
 // * Mark Lee <https://github.com/malept>
 // * Florian Keller <https://github.com/ffflorian>
 
-import { CreateOptions as AsarOptions } from 'asar';
+import { CreateOptions as AsarOptions } from '@electron/asar';
 import { ElectronDownloadRequestOptions as ElectronDownloadOptions } from '@electron/get';
 import {
   LegacyNotarizeCredentials,
   NotaryToolCredentials,
   TransporterOptions
-} from 'electron-notarize/lib/types';
-import { SignOptions } from 'electron-osx-sign';
+} from '@electron/notarize/lib/types';
+import { SignOptions } from '@electron/osx-sign/dist/esm/types';
+import type { makeUniversalApp } from '@electron/universal';
+
+type MakeUniversalOpts = Parameters<typeof makeUniversalApp>[0]
 
 type NotarizeLegacyOptions = LegacyNotarizeCredentials & TransporterOptions;
 
@@ -49,7 +52,7 @@ declare namespace electronPackager {
    * Architectures that have been supported by the official Electron prebuilt binaries, past
    * and present.
    */
-  type OfficialArch = 'ia32' | 'x64' | 'armv7l' | 'arm64' | 'mips64el';
+  type OfficialArch = 'ia32' | 'x64' | 'armv7l' | 'arm64' | 'mips64el' | 'universal';
   /**
    * Platforms that have been supported by the official Electron prebuilt binaries, past and present.
    */
@@ -103,7 +106,8 @@ declare namespace electronPackager {
     /**
      * @param buildPath - For [[afterExtract]], the path to the temporary folder where the prebuilt
      * Electron binary has been extracted to. For [[afterCopy]] and [[afterPrune]], the path to the
-     * folder where the Electron app has been copied to.
+     * folder where the Electron app has been copied to. For [[afterComplete]], the final directory
+     * of the packaged application.
      * @param electronVersion - the version of Electron that is being bundled with the application.
      * @param platform - The target platform you are packaging for.
      * @param arch - The target architecture you are packaging for.
@@ -114,19 +118,31 @@ declare namespace electronPackager {
     electronVersion: string,
     platform: TargetArch,
     arch: TargetArch,
-    callback: () => void
+    callback: (err?: Error | null) => void
   ) => void;
 
-  /** See the documentation for [`electron-osx-sign`](https://npm.im/electron-osx-sign#opts) for details. */
+  type TargetDefinition = {
+    arch: TargetArch;
+    platform: TargetPlatform;
+  }
+  type FinalizePackageTargetsHookFunction = (targets: TargetDefinition[], callback: (err?: Error | null) => void) => void;
+
+  /** See the documentation for [`@electron/osx-sign`](https://npm.im/@electron/osx-sign#opts) for details. */
   type OsxSignOptions = Omit<SignOptions, 'app' | 'binaries' | 'platform' | 'version'>;
 
   /**
-   * See the documentation for [`electron-notarize`](https://npm.im/electron-notarize#method-notarizeopts-promisevoid)
+   * See the documentation for [`@electron/notarize`](https://npm.im/@electron/notarize#method-notarizeopts-promisevoid)
    * for details.
    */
   type OsxNotarizeOptions =
     | ({ tool?: 'legacy' } & NotarizeLegacyOptions)
     | ({ tool: 'notarytool' } & NotaryToolCredentials);
+
+  /**
+   * See the documentation for [`@electron/universal`](https://github.com/electron/universal)
+   * for details.
+   */
+  type OsxUniversalOptions = Omit<MakeUniversalOpts, 'x64AppPath' | 'arm64AppPath' | 'outAppPath' | 'force'>
 
   /**
    * Defines URL protocol schemes to be used on macOS.
@@ -175,13 +191,30 @@ declare namespace electronPackager {
     /** The source directory. */
     dir: string;
     /**
+     * Functions to be called after your app directory has been packaged into an .asar file.
+     *
+     * **Note**: `afterAsar` will only be called if the [[asar]] option is set.
+     */
+    afterAsar?: HookFunction[];
+    /** Functions to be called after the packaged application has been moved to the final directory. */
+    afterComplete?: HookFunction[];
+    /**
      * Functions to be called after your app directory has been copied to a temporary directory.
      *
      * **Note**: `afterCopy` will not be called if the [[prebuiltAsar]] option is set.
      */
     afterCopy?: HookFunction[];
+    /**
+     * Functions to be called after the files specified in the [[extraResource]] option have been copied.
+     **/
+    afterCopyExtraResources?: HookFunction[];
     /** Functions to be called after the prebuilt Electron binary has been extracted to a temporary directory. */
     afterExtract?: HookFunction[];
+    /**
+     * Functions to be called after the final matrix of platform/arch combination is determined.  Use this to
+     * learn what archs/platforms packager is targetting when you pass "all" as a value.
+     */
+    afterFinalizePackageTargets?: FinalizePackageTargetsHookFunction[];
     /**
      * Functions to be called after Node module pruning has been applied to the application.
      *
@@ -271,6 +304,22 @@ declare namespace electronPackager {
      * **Note:** `asar` will have no effect if the [[prebuiltAsar]] option is set.
      */
     asar?: boolean | AsarOptions;
+    /**
+     * Functions to be called before your app directory is packaged into an .asar file.
+     *
+     * **Note**: `beforeAsar` will only be called if the [[asar]] option is set.
+     */
+    beforeAsar?: HookFunction[];
+    /**
+     * Functions to be called before your app directory is copied to a temporary directory.
+     *
+     * **Note**: `beforeCopy` will not be called if the [[prebuiltAsar]] option is set.
+     */
+    beforeCopy?: HookFunction[];
+    /**
+     * Functions to be called before the files specified in the [[extraResource]] option are copied.
+     **/
+    beforeCopyExtraResources?: HookFunction[];
     /**
      * The build version of the application. Defaults to the value of the [[appVersion]] option.
      * Maps to the `FileVersion` metadata property on Windows, and `CFBundleVersion` on macOS.
@@ -424,7 +473,7 @@ declare namespace electronPackager {
     name?: string;
     /**
      * If present, notarizes macOS target apps when the host platform is macOS and XCode is installed.
-     * See [`electron-notarize`](https://github.com/electron/electron-notarize#method-notarizeopts-promisevoid)
+     * See [`@electron/notarize`](https://github.com/electron/notarize#method-notarizeopts-promisevoid)
      * for option descriptions, such as how to use `appleIdPassword` safely or obtain an API key.
      *
      * **Requires the [[osxSign]] option to be set.**
@@ -435,15 +484,20 @@ declare namespace electronPackager {
     /**
      * If present, signs macOS target apps when the host platform is macOS and XCode is installed.
      * When the value is `true`, pass default configuration to the signing module. See
-     * [electron-osx-sign](https://npm.im/electron-osx-sign#opts---options) for sub-option descriptions and
+     * [@electron/osx-sign](https://npm.im/@electron/osx-sign#opts---options) for sub-option descriptions and
      * their defaults. Options include, but are not limited to:
      * - `identity` (*string*): The identity used when signing the package via `codesign`.
-     * - `entitlements` (*string*): The path to the 'parent' entitlements.
-     * - `entitlements-inherit` (*string*): The path to the 'child' entitlements.
+     * - `binaries` (*array<string>*): Path to additional binaries that will be signed along with built-ins of Electron/
      *
      * @category macOS
      */
     osxSign?: true | OsxSignOptions;
+    /**
+     * Used to provide custom options to the internal call to `@electron/universal` when building a macOS
+     * app with the target architecture of "universal".  Unused otherwise, providing a value does not imply
+     * a universal app is built.
+     */
+    osxUniversal?: OsxUniversalOptions;
     /**
      * The base directory where the finished package(s) are created.
      *

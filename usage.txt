@@ -22,8 +22,9 @@ version            prints the version of Electron Packager and Node, plus the ta
 all                equivalent to --platform=all --arch=all
 app-copyright      human-readable copyright line for the app
 app-version        release version to set for the app
-arch               all, or one or more of: ia32, x64, armv7l, arm64, mips64el (comma-delimited if
-                   multiple). Defaults to the host arch
+arch               all, or one or more of: ia32, x64, armv7l, arm64, mips64el, universal (comma-delimited if
+                   multiple). Defaults to the host arch.
+                   For info on arch/platform support see https://github.com/electron/electron-packager/#supported-platforms
 asar               whether to package the source code within your app into an archive. You can either
                    pass --asar by itself to use the default configuration, OR use dot notation to
                    configure a list of sub-properties, e.g. --asar.unpackDir=sub_dir - do not use
@@ -83,7 +84,7 @@ helper-bundle-id   bundle identifier to use in the app helper plist
 osx-sign           (macOS host platform only) Whether to sign the macOS app packages. You can either
                    pass --osx-sign by itself to use the default configuration, or use dot notation
                    to configure a list of sub-properties, e.g. --osx-sign.identity="My Name"
-                   For info on supported values see https://npm.im/electron-osx-sign#opts---options
+                   For info on supported values see https://npm.im/@electron/osx-sign#opts---options
                    Properties supported include:
                    - identity: should contain the identity to be used when running `codesign`
                    - entitlements: the path to entitlements used in signing
@@ -91,7 +92,7 @@ osx-sign           (macOS host platform only) Whether to sign the macOS app pack
 osx-notarize       (macOS host platform only, requires --osx-sign) Whether to notarize the macOS app
                    packages. You must use dot notation to configure a list of sub-properties, e.g.
                    --osx-notarize.appleId="foo@example.com"
-                   For info on supported values see https://npm.im/electron-notarize#method-notarizeopts-promisevoid
+                   For info on supported values see https://npm.im/@electron/notarize#method-notarizeopts-promisevoid
                    Properties supported include:
                    - appleId: should contain your apple ID username / email
                    - appleIdPassword: should contain the password for the provided apple ID

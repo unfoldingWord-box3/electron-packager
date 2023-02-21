@@ -2,7 +2,68 @@
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/electron/electron-packager/compare/v15.4.0...main
+[Unreleased]: https://github.com/electron/electron-packager/compare/v17.0.0...main
+
+### Changed
+
+* Replaced `electron-notarize` with `@electron/notarize`.  The configuration options are unchanged. This migration is purely cosmetic.
+* Added new `afterFinalizePackageTargets` hook. This hook exposes the platform/arch combinations that are being packaged when the `arch:all` or `platform:all` options are set.
+
+## [17.0.0]
+
+[17.0.0]: https://github.com/electron/electron-packager/compare/v16.0.0...v17.0.0
+
+### Changed
+
+* **BREAKING:** Replaced `electron-osx-sign` with `@electron/osx-sign`.  The accepted properties on the `osxSign` options object are now slightly different.  Please see the [migration guide](https://github.com/electron/osx-sign/blob/main/MIGRATION.md) for more information on these changes. (#1428)
+* Replaced `asar` with `@electron/asar`. The configuration options are unchanged. This migration is purely cosmetic. (#1431)
+
+### Fixed
+
+* `ElectronAsarIntegrity` is now automatically removed from the `asar` option is disabled (#1281)
+
+## [16.0.0] - 2022-08-23
+
+[16.0.0]: https://github.com/electron/electron-packager/compare/v15.5.1...v16.0.0
+
+### Fixed
+
+* Properly import info logger (#1405)
+
+### Changed
+
+* Bump `got` to 2.0.0 (#1397)
+
+### Removed
+
+* Node 12 support (#1399)
+
+## [15.5.2] - 2022-08-22
+
+[15.5.2]: https://github.com/electron/electron-packager/compare/v15.5.1...v15.5.2
+
+### Fixed
+
+* Package should not log info on `--quiet` flag
+* Ignore `node_gyp_bins` directory if it exists
+
+## [15.5.1] - 2022-04-20
+
+[15.5.1]: https://github.com/electron/electron-packager/compare/v15.5.0...v15.5.1
+
+### Fixed
+
+* Univeral builds single-arch components are now built sequentially instead of in parallel to fix race conditions in hooks
+* The typescript definition for HookFunction now correctly allows an error to be passed
+
+## [15.5.0] - 2022-04-19
+
+[15.5.0]: https://github.com/electron/electron-packager/compare/v15.4.0...v15.5.0
+
+### Added
+
+* New `universal` architecture supported when packaging for macOS to generate a universal app
+* `osxUniveral` option to allow providing options to `@electron/universal` when packaging a universal app
 
 ## [15.4.0] - 2021-09-10
 

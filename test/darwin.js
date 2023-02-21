@@ -328,10 +328,11 @@ if (!(process.env.CI && process.platform === 'win32')) {
     t.deepEqual(signOpts, { identity: null, app: 'out', platform: 'darwin', version: 'version' })
   })
 
-  test('osxSign: entitlements passed to electron-osx-sign', t => {
-    const args = { entitlements: 'path-to-entitlements' }
+  test('osxSign: optionsForFile passed to @electron/osx-sign', t => {
+    const optionsForFile = () => ({ entitlements: 'path-to-entitlements' })
+    const args = { optionsForFile }
     const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', entitlements: args.entitlements })
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', optionsForFile })
   })
 
   test('osxSign: app not overwritten', t => {
@@ -350,11 +351,6 @@ if (!(process.env.CI && process.platform === 'win32')) {
     const args = { binaries: ['binary1', 'binary2'] }
     const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
     t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version' })
-  })
-
-  test('force osxSign.hardenedRuntime when osxNotarize is set', t => {
-    const signOpts = mac.createSignOpts({}, 'darwin', 'out', 'version', true)
-    t.true(signOpts.hardenedRuntime, 'hardenedRuntime forced to true')
   })
 
   if (process.platform === 'darwin') {
@@ -479,10 +475,11 @@ if (!(process.env.CI && process.platform === 'win32')) {
     const finalPath = (await packager(opts))[0]
     const plistObj = await parseInfoPlist(t, opts, finalPath)
     t.is(typeof plistObj.ElectronAsarIntegrity, 'object')
+    // Note: If updating thr basic app fixture (used here in baseOpts), ths hash should also be updated.
     t.deepEqual(plistObj.ElectronAsarIntegrity, {
       'Resources/app.asar': {
         algorithm: 'SHA256',
-        hash: '27f2dba4273f6c119000ec7059c27d86e27306d5dbbb83cfdfb862d92c679574'
+        hash: '2ef4c03f6fc8adf03f782b40fddcfcdd26d1f3f3669ecedffeea5de5d28897c3'
       }
     })
   }))

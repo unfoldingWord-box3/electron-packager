@@ -11,6 +11,9 @@ function completeFunction(
   callbackFn();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+function finalizePackageTargetsFunction(targets: { arch: string; platform: string }[]): void {}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ignoreFunction(path: string): boolean {
   return true;
@@ -52,6 +55,17 @@ await packager({
 await packager({
   dir: '.',
   name: 'myapplication',
+  platform: 'darwin',
+  arch: 'universal',
+  electronVersion: '20.0.0',
+  osxUniversal: {
+    mergeASARs: true
+  }
+});
+
+await packager({
+  dir: '.',
+  name: 'myapplication',
   platform: 'all',
   arch: 'all',
   electronVersion: '0.34.0',
@@ -74,9 +88,16 @@ await packager({
 
 await packager({
   dir: '.',
+  afterAsar: [completeFunction],
+  afterComplete: [completeFunction],
   afterCopy: [completeFunction],
+  afterCopyExtraResources: [completeFunction],
   afterExtract: [completeFunction],
+  afterFinalizePackageTargets: [finalizePackageTargetsFunction],
   afterPrune: [completeFunction],
+  beforeAsar: [completeFunction],
+  beforeCopy: [completeFunction],
+  beforeCopyExtraResources: [completeFunction],
   appCopyright: 'Copyright',
   appVersion: '1.0',
   arch: 'ia32',
@@ -173,8 +194,9 @@ await packager({
   },
   osxSign: {
     identity: 'myidentity',
-    entitlements: 'path/to/my.entitlements',
-    'entitlements-inherit': 'path/to/inherit.entitlements',
+    optionsForFile: () => ({
+      entitlements: 'path/to/my.entitlements',
+    }),
   },
   protocols: [
     {
