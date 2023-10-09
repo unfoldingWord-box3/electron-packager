@@ -22,8 +22,8 @@ Package your [Electronite](https://github.com/unfoldingword-dev/electronite) app
 
 ## About
 
-Electron Packager is a command line tool and Node.js library that bundles Electron-based application
-source code with a renamed Electron executable and supporting files into folders ready for distribution.
+Electronite Packager is a command line tool and Node.js library that bundles Electron-based application
+source code with a renamed Electronite executable and supporting files into folders ready for distribution.
 
 For creating distributables like installers and Linux packages, consider using either [Electron
 Forge](https://github.com/electron/forge) (which uses Electron Packager
@@ -37,7 +37,7 @@ _(files named `electron-v${version}-${platform}-${arch}.zip`)_.
 
 ## Supported Platforms
 
-Electron Packager is known to run on the following **host** platforms:
+Electronite Packager is known to run on the following **host** platforms:
 
 * Windows (32/64 bit)
 * macOS (formerly known as OS X)
@@ -56,14 +56,14 @@ It generates executables/bundles for the following **target** platforms:
 This module requires Node.js 14.17.5 or higher to run.
 
 ```sh
-npm install --save-dev electron-packager
+npm install --save-dev electronite-packager
 ```
 
-It is **not** recommended to install `electron-packager` globally.
+It is **not** recommended to install `electronite-packager` globally.
 
 ### Building Windows apps from non-Windows platforms
 
-Building an Electron app for the Windows target platform requires editing the `Electron.exe` file.
+Building an Electronite app for the Windows target platform requires editing the `Electron.exe` file.
 Currently, Electron Packager uses [`node-rcedit`](https://github.com/electron/node-rcedit) to accomplish
 this. A Windows executable is bundled in that Node package and needs to be run in order for this
 functionality to work, so on non-Windows host platforms (not including WSL),
@@ -81,7 +81,7 @@ JavaScript API usage can be found in the [API documentation](https://electron.gi
 Running Electron Packager from the command line has this basic form:
 
 ```
-npx electron-packager <sourcedir> <appname> --platform=<platform> --arch=<arch> [optional flags...]
+npx electronite-packager <sourcedir> <appname> --platform=<platform> --arch=<arch> [optional flags...]
 ```
 
 > **Note**:
@@ -90,8 +90,8 @@ npx electron-packager <sourcedir> <appname> --platform=<platform> --arch=<arch> 
 
 This will:
 
-* Find or download the correct release of Electron
-* Use that version of Electron to create an app in `<out>/<appname>-<platform>-<arch>` *(this can be customized via an optional flag)*
+* Find or download the correct release of Electronite
+* Use that version of Electronite to create an app in `<out>/<appname>-<platform>-<arch>` *(this can be customized via an optional flag)*
 
 `--platform` and `--arch` can be omitted, in two cases:
 
@@ -99,20 +99,20 @@ This will:
   platforms/architectures will be created.
 * Otherwise, a single bundle for the host platform/architecture will be created.
 
-For an overview of the other optional flags, run `electron-packager --help` or see
+For an overview of the other optional flags, run `electronite-packager --help` or see
 [usage.txt](https://github.com/electron/electron-packager/blob/main/usage.txt). For
 detailed descriptions, see the [API documentation](https://electron.github.io/electron-packager/main/modules/electronpackager.html).
 
 For flags that are structured as objects, you can pass each option as via dot notation as such:
 
 ```sh
-npx electron-packager --flag.foo="bar"
-# will pass in { flag: { foo: "bar"} } as an option to the Electron Packager API
+npx electronite-packager --flag.foo="bar"
+# will pass in { flag: { foo: "bar"} } as an option to the Electronite Packager API
 ```
 
 If `appname` is omitted, this will use the name specified by "productName" or "name" in the nearest package.json.
 
-**Characters in the Electron app name which are not allowed in all target platforms' filenames
+**Characters in the Electronite app name which are not allowed in all target platforms' filenames
 (e.g., `/`), will be replaced by hyphens (`-`).**
 
 You should be able to launch the app on the platform you built for. If not, check your settings and try again.
@@ -139,7 +139,7 @@ foobar
 
 …and that the following is true:
 
-* `electron-packager` is installed locally
+* `electronite-packager` is installed locally
 * `productName` in `package.json` has been set to `Foo Bar`
 * The `electron` module is in the `devDependencies` section of `package.json`, and set to the exact version of `1.4.15`.
 * `npm install` for the `Foo Bar` app has been run at least once
@@ -147,10 +147,10 @@ foobar
 When one runs the following command for the first time in the `foobar` directory:
 
 ```
-npx electron-packager .
+npx electronite-packager .
 ```
 
-`electron-packager` will do the following:
+`electronite-packager` will do the following:
 
 * Use the current directory for the `sourcedir`
 * Infer the `appname` from the `productName` in `package.json`
